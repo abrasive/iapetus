@@ -22,7 +22,9 @@ set(iapetus_SOURCES
 	video/vdpinit.c video/scrscr.c video/rotscr.c video/vdp1.c video/pal.c
 	iapetus.c)
 
-set(CMAKE_C_FLAGS "-O2 -Wall -m2 -DREENTRANT_SYSCALLS_PROVIDED -fno-stack-protector")
+if(NOT DEFINED CMAKE_C_FLAGS)
+    set(CMAKE_C_FLAGS "-O2 -Wall -m2 -DREENTRANT_SYSCALLS_PROVIDED")
+endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_library(${PROJECT_NAME} STATIC ${iapetus_SOURCES})
