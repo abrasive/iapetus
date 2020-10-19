@@ -41,13 +41,13 @@ void ar_erase_flash_AM29F010B(flash_info_struct *flash_info, volatile u16 *page,
 void ar_write_flash_AM29F010B(flash_info_struct *flash_info, volatile u16 *page, u16 *data, int num_pages);
 
 static flash_info_struct flash_info_list[] = {
-   { "Silicon Storage Technology SST29EE010", 0xBFBF0707, 128, 1024, 131072, ar_erase_flash_all_SST29EE010, ar_erase_flash_SST29EE010, ar_write_flash_SST29EE010 },
-	{ "Silicon Storage Technology SST29EE020", 0xBFBF1010, 128, 2048, 262144, ar_erase_flash_all_SST29EE010, ar_erase_flash_SST29EE010, ar_write_flash_SST29EE010 },
-	{ "Silicon Storage Technology SST39SF010A", 0xBFBFB5B5, 4096, 32, 131072, ar_erase_flash_all_AM29F010B, ar_erase_flash_AM29F010B, ar_write_flash_AM29F010B },
-	{ "Silicon Storage Technology SST39SF020" , 0xBFBFB6B6, 4096, 32, 262144, ar_erase_flash_all_AM29F010B, ar_erase_flash_AM29F010B, ar_write_flash_AM29F010B },
-	{ "Silicon Storage Technology SST39SF040" , 0xBFBFB7B7, 4096, 32, 524288, ar_erase_flash_all_AM29F010B, ar_erase_flash_AM29F010B, ar_write_flash_AM29F010B },
-   { "Atmel AT29C010", 0x1F1FD5D5, 128, 1024, 131072, ar_erase_flash_all_SST29EE010, ar_erase_flash_SST29EE010, ar_write_flash_SST29EE010 },
-	{ "AMD AM29F010B", 0x01012020, 16384, 8, 131072, ar_erase_flash_all_AM29F010B, ar_erase_flash_AM29F010B, ar_write_flash_AM29F010B },
+   { "Silicon Storage Technology SST29EE010", 0xBFBF0707, 128, 1024, 131072, 0, ar_erase_flash_all_AM29F010B, ar_erase_flash_SST29EE010, ar_write_flash_SST29EE010 },
+	{ "Silicon Storage Technology SST29EE020", 0xBFBF1010, 128, 2048, 262144, 0, ar_erase_flash_all_AM29F010B, ar_erase_flash_SST29EE010, ar_write_flash_SST29EE010 },
+	{ "Silicon Storage Technology SST39SF010A", 0xBFBFB5B5, 4096, 32, 131072, 1, ar_erase_flash_all_AM29F010B, ar_erase_flash_AM29F010B, ar_write_flash_AM29F010B },
+	{ "Silicon Storage Technology SST39SF020" , 0xBFBFB6B6, 4096, 32, 262144, 1, ar_erase_flash_all_AM29F010B, ar_erase_flash_AM29F010B, ar_write_flash_AM29F010B },
+	{ "Silicon Storage Technology SST39SF040" , 0xBFBFB7B7, 4096, 32, 524288, 1, ar_erase_flash_all_AM29F010B, ar_erase_flash_AM29F010B, ar_write_flash_AM29F010B },
+   { "Atmel AT29C010", 0x1F1FD5D5, 128, 1024, 131072, 0, ar_erase_flash_all_SST29EE010, ar_erase_flash_SST29EE010, ar_write_flash_SST29EE010 },
+	{ "AMD AM29F010B", 0x01012020, 16384, 8, 131072, 1, ar_erase_flash_all_AM29F010B, ar_erase_flash_AM29F010B, ar_write_flash_AM29F010B },
 };
 
 static int num_supported_flash=sizeof(flash_info_list)/sizeof(flash_info_struct);
@@ -88,21 +88,12 @@ void ar_command(u16 cmd)
   AR_5555 = cmd;
 }
 
-void ar_delay_10ms()
-{
-   // This should be good enough. Ideally though, you'd want something a little more accurate using WDT, FRT or something
-   vdp_vsync();
-   vdp_vsync();
-}
-
 void ar_get_product_id(u16 *vendor_id, u16 *device_id)
 {
 	ar_command(CMD_PID_ENTRY);
-	ar_delay_10ms();
 	*vendor_id = AR_VENDOR;
 	*device_id = AR_DEVICE;
 	ar_command(CMD_PID_EXIT);
-	ar_delay_10ms();
 }
 
 int ar_get_product_index(u16 vendorid, u16 deviceid)
@@ -172,7 +163,8 @@ void ar_erase_flash_SST29EE010(flash_info_struct *flash_info, volatile u16 *page
         page[0] = 0xFFFF;
         page++;
      }
-     ar_delay_10ms();
+     while (page[-1] != 0xffff)
+         ;
   }
 }
 
@@ -189,7 +181,8 @@ void ar_write_flash_SST29EE010(flash_info_struct *flash_info, volatile u16 *page
         page++;
         data++;
      }
-     ar_delay_10ms();
+     while (page[-1] != data[-1])
+         ;
   }
 }
 

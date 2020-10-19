@@ -27,6 +27,7 @@ struct fi_struct
 	int page_size; // in words
 	int num_pages; 
 	int rom_size; // in words
+	int needs_page_erase;
 	void (*erase_flash_all)(struct fi_struct *flash_info);
 	void (*erase_flash)(struct fi_struct *flash_info, volatile u16 *page, int num_pages);
 	void (*write_flash)(struct fi_struct *flash_info, volatile u16 *page, u16 *data, int num_pages);
