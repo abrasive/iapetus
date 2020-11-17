@@ -90,6 +90,18 @@ void ar_command(u16 cmd)
 
 void ar_get_product_id(u16 *vendor_id, u16 *device_id)
 {
+	// Old SST devices only support this proprietary command.
+	// New SST devices still support it.
+	ar_command(0x8080);
+	ar_command(0x6060);
+	*vendor_id = AR_VENDOR;
+	*device_id = AR_DEVICE;
+	ar_command(CMD_PID_EXIT);
+
+	if (*vendor_id == 0xbfbf)
+		return;
+
+	// JEDEC standard method
 	ar_command(CMD_PID_ENTRY);
 	*vendor_id = AR_VENDOR;
 	*device_id = AR_DEVICE;
