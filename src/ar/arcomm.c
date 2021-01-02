@@ -91,10 +91,17 @@ void ar_command(u16 cmd)
 
 void ar_get_product_id(u16 *vendor_id, u16 *device_id)
 {
+	// All of the vdp_vsync() delays in this function are to support Atmel AT29C010, which asks a 10 ms delay.
+	// It's easily confused by the SST command too, it seems.
+
 	// Old SST devices only support this proprietary command.
 	// New SST devices still support it.
 	ar_command(0x8080);
+	vdp_vsync();
+	vdp_vsync();
 	ar_command(0x6060);
+	vdp_vsync();
+	vdp_vsync();
 	*vendor_id = AR_VENDOR;
 	*device_id = AR_DEVICE;
 	ar_command(CMD_PID_EXIT);
@@ -103,10 +110,16 @@ void ar_get_product_id(u16 *vendor_id, u16 *device_id)
 		return;
 
 	// JEDEC standard method
+	vdp_vsync();
+	vdp_vsync();
 	ar_command(CMD_PID_ENTRY);
+	vdp_vsync();
+	vdp_vsync();
 	*vendor_id = AR_VENDOR;
 	*device_id = AR_DEVICE;
 	ar_command(CMD_PID_EXIT);
+	vdp_vsync();
+	vdp_vsync();
 }
 
 int ar_get_product_index(u16 vendorid, u16 deviceid)
