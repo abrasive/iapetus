@@ -44,12 +44,10 @@ void vdp_init(int res)
    int i;
    u16 EWRR;
 
-   /*
    if (res & 0x1)
       bios_set_clock_speed(1); // 352
    else
       bios_set_clock_speed(0); // 320
-      */
 
    for (i = 0; i < sizeof(vdp2_settings); i++)
       *(((u8 *)&vdp2_settings)+i) = 0;
