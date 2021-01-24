@@ -39,6 +39,7 @@ void ar_write_flash_SST29EE010(flash_info_struct *flash_info, volatile u16 *page
 void ar_erase_flash_all_AM29F010B(flash_info_struct *flash_info);
 void ar_erase_flash_AM29F010B(flash_info_struct *flash_info, volatile u16 *page, int num_pages);
 void ar_write_flash_AM29F010B(flash_info_struct *flash_info, volatile u16 *page, u16 *data, int num_pages);
+int ar_get_product_index(u16 vendorid, u16 deviceid);
 
 static flash_info_struct flash_info_list[] = {
    { "Silicon Storage Technology SST29EE010", 0xBFBF0707, 128, 1024, 131072, 0, ar_erase_flash_all_AM29F010B, ar_erase_flash_SST29EE010, ar_write_flash_SST29EE010 },
@@ -97,11 +98,7 @@ void ar_get_product_id(u16 *vendor_id, u16 *device_id)
 	// Old SST devices only support this proprietary command.
 	// New SST devices still support it.
 	ar_command(0x8080);
-	vdp_vsync();
-	vdp_vsync();
 	ar_command(0x6060);
-	vdp_vsync();
-	vdp_vsync();
 	*vendor_id = AR_VENDOR;
 	*device_id = AR_DEVICE;
 	ar_command(CMD_PID_EXIT);
@@ -110,10 +107,19 @@ void ar_get_product_id(u16 *vendor_id, u16 *device_id)
 		return;
 
 	// JEDEC standard method
+	ar_command(CMD_PID_ENTRY);
+	*vendor_id = AR_VENDOR;
+	*device_id = AR_DEVICE;
+	ar_command(CMD_PID_EXIT);
+
+	// some devices don't work with delays, so bail out if we already got a valid ID
+	if (ar_get_product_index(*vendor_id, *device_id) >= 0)
+		return;
+
+	// JEDEC standard method, with delays. the AT29C010 datasheet specifies a 10 ms delay
 	vdp_vsync();
 	vdp_vsync();
 	ar_command(CMD_PID_ENTRY);
-	vdp_vsync();
 	vdp_vsync();
 	*vendor_id = AR_VENDOR;
 	*device_id = AR_DEVICE;
