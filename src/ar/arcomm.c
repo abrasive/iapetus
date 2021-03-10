@@ -106,6 +106,9 @@ void ar_get_product_id(u16 *vendor_id, u16 *device_id)
 	if (*vendor_id == 0xbfbf)
 		return;
 
+	// some devices don't like the SST command; send a 1-cycle reset
+	AR_5555 = CMD_PID_EXIT;
+
 	// JEDEC standard method
 	ar_command(CMD_PID_ENTRY);
 	*vendor_id = AR_VENDOR;
